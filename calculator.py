@@ -1,106 +1,143 @@
-def add(a, b):
-    return a + b
+class Calculator:
+    def __init__(self):
+        self.history = []
+        self.max_history = 10
+        self.last_result = 0
+
+    def add(self, a, b):
+        result = a + b
+        self.last_result = result
+        self._record_calculation(f"{a} + {b}", result)
+        return result
+
+    def subtract(self, a, b):
+        result = a - b
+        self.last_result = result
+        self._record_calculation(f"{a} - {b}", result)
+        return result
+
+    def multiply(self, a, b):
+        result = a * b
+        self.last_result = result
+        self._record_calculation(f"{a} * {b}", result)
+        return result
+
+    def divide(self, a, b):
+        if b == 0:
+            raise ValueError("Cannot divide by zero")
+        result = a / b
+        self.last_result = result
+        self._record_calculation(f"{a} / {b}", result)
+        return result
+
+    def _record_calculation(self, operation, result):
+        entry = {"operation": operation, "result": result}
+        self.history.append(entry)
+        if len(self.history) > self.max_history:
+            self.history.pop(0)
+
+    def view_history(self):
+        if not self.history:
+            return "No calculation history available."
+        
+        history_text = "\n" + "=" * 50 + "\n"
+        history_text += "CALCULATION HISTORY (Last 10)\n"
+        history_text += "=" * 50 + "\n"
+        
+        for index, entry in enumerate(self.history, 1):
+            history_text += f"{index}. {entry['operation']} = {entry['result']}\n"
+        
+        history_text += "=" * 50 + "\n"
+        return history_text
+
+    def clear_history(self):
+        self.history = []
+        self.last_result = 0
+        return "Calculator history and state cleared."
+
+    def get_last_result(self):
+        return self.last_result
 
 
-def subtract(a, b):
-    return a - b
-
-
-def multiply(a, b):
-    return a * b
-
-
-def divide(a, b):
-    if b == 0:
-        raise ValueError("Cannot divide by zero")
-    return a / b
-
-
-def power(a, b):
-    return a ** b
-
-
-def modulo(a, b):
-    if b == 0:
-        raise ValueError("Cannot perform modulo with zero")
-    return a % b
-
-
-OPERATIONS = {
-    '+': add,
-    '-': subtract,
-    '*': multiply,
-    '/': divide,
-    '**': power,
-    '%': modulo
-}
-
-
-def parse_input(user_input):
-    parts = user_input.strip().split()
+def main():
+    calc = Calculator()
     
-    if len(parts) != 3:
-        raise ValueError("Invalid format. Use: number operator number")
-    
-    try:
-        first_number = float(parts[0])
-        operator = parts[1]
-        second_number = float(parts[2])
-    except ValueError:
-        raise ValueError("Numbers must be valid integers or decimals")
-    
-    if operator not in OPERATIONS:
-        valid_ops = ', '.join(OPERATIONS.keys())
-        raise ValueError(f"Invalid operator '{operator}'. Valid operators: {valid_ops}")
-    
-    return first_number, operator, second_number
-
-
-def calculate(first_number, operator, second_number):
-    operation = OPERATIONS[operator]
-    return operation(first_number, second_number)
-
-
-def display_welcome():
-    print("\n" + "="*50)
-    print("Welcome to the Minimalist Calculator")
-    print("="*50)
-    print("\nSupported operations: + - * / ** %")
-    print("Format: number operator number")
-    print("Example: 10 + 5")
-    print("Type 'quit' to exit\n")
-
-
-def display_result(first_number, operator, second_number, result):
-    print(f"\n{first_number} {operator} {second_number} = {result}")
-
-
-def run_calculator():
-    display_welcome()
+    print("\n" + "=" * 50)
+    print("MINIMALIST CALCULATOR")
+    print("=" * 50)
+    print("Commands:")
+    print("  add <a> <b>      - Add two numbers")
+    print("  sub <a> <b>      - Subtract two numbers")
+    print("  mul <a> <b>      - Multiply two numbers")
+    print("  div <a> <b>      - Divide two numbers")
+    print("  history          - View calculation history")
+    print("  clear            - Clear history and reset")
+    print("  quit             - Exit calculator")
+    print("=" * 50 + "\n")
     
     while True:
-        user_input = input("Enter calculation: ").strip()
-        
-        if user_input.lower() == 'quit':
-            print("\nThank you for using the calculator. Goodbye!\n")
-            break
-        
-        if not user_input:
-            print("Error: Please enter a calculation.")
-            continue
-        
         try:
-            first_number, operator, second_number = parse_input(user_input)
-            result = calculate(first_number, operator, second_number)
-            display_result(first_number, operator, second_number, result)
+            user_input = input("Enter command: ").strip().lower()
+            
+            if not user_input:
+                continue
+            
+            parts = user_input.split()
+            command = parts[0]
+            
+            if command == "quit":
+                print("\nGoodbye!\n")
+                break
+            
+            elif command == "history":
+                print(calc.view_history())
+            
+            elif command == "clear":
+                message = calc.clear_history()
+                print(f"\n{message}\n")
+            
+            elif command == "add":
+                if len(parts) < 3:
+                    print("Usage: add <number1> <number2>\n")
+                    continue
+                a, b = float(parts[1]), float(parts[2])
+                result = calc.add(a, b)
+                print(f"Result: {result}\n")
+            
+            elif command == "sub":
+                if len(parts) < 3:
+                    print("Usage: sub <number1> <number2>\n")
+                    continue
+                a, b = float(parts[1]), float(parts[2])
+                result = calc.subtract(a, b)
+                print(f"Result: {result}\n")
+            
+            elif command == "mul":
+                if len(parts) < 3:
+                    print("Usage: mul <number1> <number2>\n")
+                    continue
+                a, b = float(parts[1]), float(parts[2])
+                result = calc.multiply(a, b)
+                print(f"Result: {result}\n")
+            
+            elif command == "div":
+                if len(parts) < 3:
+                    print("Usage: div <number1> <number2>\n")
+                    continue
+                a, b = float(parts[1]), float(parts[2])
+                result = calc.divide(a, b)
+                print(f"Result: {result}\n")
+            
+            else:
+                print("Unknown command. Please try again.\n")
         
         except ValueError as e:
-            print(f"Error: {e}")
-        except ZeroDivisionError:
-            print("Error: Cannot divide by zero")
+            print(f"Error: {e}\n")
+        except IndexError:
+            print("Invalid input format. Please check your command.\n")
         except Exception as e:
-            print(f"Unexpected error: {e}")
+            print(f"An error occurred: {e}\n")
 
 
 if __name__ == "__main__":
-    run_calculator()
+    main()
